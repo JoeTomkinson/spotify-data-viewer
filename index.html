@@ -828,10 +828,24 @@ function renderWrapped() {
   }
 
   if (w.topTracks && w.topTracks.topTracks) {
+    // Build URI -> name lookup from library and streaming history
+    const uriName = {};
+    ((store.library || {}).tracks || []).forEach(t => { if (t.uri && t.track) uriName[t.uri] = { track: t.track, artist: t.artist }; });
+    (store.streaming || []).forEach(t => { if (t.trackUri && t.trackName && !uriName[t.trackUri]) uriName[t.trackUri] = { track: t.trackName, artist: t.artistName }; });
+    // Also check playlist items
+    ((store.playlists || {}).playlists || []).forEach(pl => (pl.items || []).forEach(item => {
+      const tr = item.track || {};
+      if (tr.trackUri && tr.trackName && !uriName[tr.trackUri]) uriName[tr.trackUri] = { track: tr.trackName, artist: tr.artistName };
+    }));
+
     html += `<h3 style="margin:20px 0 12px;font-size:16px">Top Tracks</h3>`;
-    html += `<table class="data-table"><thead><tr><th>#</th><th>Track URI</th><th>Plays</th><th>Time</th></tr></thead><tbody>`;
+    html += `<table class="data-table"><thead><tr><th>#</th><th>Track</th><th>Artist</th><th>Plays</th><th>Time</th></tr></thead><tbody>`;
     w.topTracks.topTracks.forEach((t, i) => {
-      html += `<tr><td class="track-num">${i+1}</td><td>${esc(t.trackUri)}</td><td>${t.count}</td><td>${msToHuman(t.msPlayed)}</td></tr>`;
+      const info = uriName[t.trackUri];
+      const trackId = (t.trackUri || '').replace('spotify:track:', '');
+      const trackCell = info ? esc(info.track) : `<a href="https://open.spotify.com/track/${esc(trackId)}" target="_blank" rel="noopener" style="color:var(--green)">${esc(trackId)}</a>`;
+      const artistCell = info ? esc(info.artist) : '—';
+      html += `<tr><td class="track-num">${i+1}</td><td>${trackCell}</td><td>${artistCell}</td><td>${t.count}</td><td>${msToHuman(t.msPlayed)}</td></tr>`;
     });
     html += `</tbody></table>`;
   }
