@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Music Data Viewer</title>
+<style>
+  :root {
+    --bg: #121212;
+    --surface: #181818;
+    --card: #232323;
+    --card-hover: #2a2a2a;
+    --green: #1db954;
+    --green-dim: #1aa34a;
+    --text: #ffffff;
+    --text-sub: #b3b3b3;
+    --text-dim: #727272;
+    --border: #333;
+    --radius: 10px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ---- Landing / Drop Zone ---- */
+  .landing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px;
+    text-align: center;
+  }
+
+  .landing-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+
+  .landing-sub {
+    color: var(--text-sub);
+    font-size: 15px;
+    margin-bottom: 40px;
+  }
+
+  .drop-zone {
+    width: 100%;
+    max-width: 520px;
+    border: 2px dashed var(--border);
+    border-radius: 16px;
+    padding: 60px 40px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+  }
+
+  .drop-zone:hover, .drop-zone.drag-over {
+    border-color: var(--green);
+    background: rgba(29, 185, 84, .05);
+  }
+
+  .drop-zone.drag-over { transform: scale(1.02); }
+
+  .drop-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: .8;
+  }
+
+  .drop-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .drop-hint {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .browse-btn {
+    display: inline-block;
+    background: var(--green);
+    color: #000;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 28px;
+    border-radius: 24px;
+    border: none;
+    cursor: pointer;
+    transition: transform .15s, background .15s;
+  }
+
+  .browse-btn:hover { transform: scale(1.04); background: #1ed760; }
+
+  .landing-note {
+    color: var(--text-dim);
+    font-size: 12px;
+    margin-top: 24px;
+    max-width: 400px;
+    line-height: 1.5;
+  }
+
+  .file-input { display: none; }
+
+  .load-status {
+    margin-top: 20px;
+    color: var(--text-sub);
+    font-size: 13px;
+  }
+
+  .load-status .found { color: var(--green); }
+  .load-status .missing { color: var(--text-dim); }
+
+  /* ---- Sidebar ---- */
+  .layout { display: flex; min-height: 100vh; }
+
+  .sidebar {
+    width: 260px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    padding: 24px 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    overflow-y: auto;
+    z-index: 10;
+  }
+
+  .sidebar-logo {
+    padding: 0 24px 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--green);
+  }
+
+  .sidebar-logo svg { flex-shrink: 0; }
+
+  .nav-section { padding: 0 12px; margin-bottom: 8px; }
+
+  .nav-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-dim);
+    padding: 8px 12px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: var(--text-sub);
+    font-size: 14px;
+    font-weight: 500;
+    transition: all .15s;
+    user-select: none;
+  }
+
+  .nav-item:hover { background: var(--card); color: var(--text); }
+  .nav-item.active { background: var(--card); color: var(--text); }
+  .nav-item.active::before {
+    content: '';
+    width: 3px;
+    height: 18px;
+    background: var(--green);
+    border-radius: 2px;
+    margin-left: -6px;
+    margin-right: 3px;
+  }
+
+  .nav-icon {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+  }
+
+  .sidebar-reload {
+    margin: 20px 12px 0;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all .15s;
+    text-align: center;
+  }
+
+  .sidebar-reload:hover { background: var(--card); color: var(--text-sub); }
+
+  /* ---- Main ---- */
+  .main {
+    flex: 1;
+    margin-left: 260px;
+    padding: 32px 40px;
+    max-width: 1200px;
+  }
+
+  .page-title { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+  .page-subtitle { color: var(--text-sub); font-size: 14px; margin-bottom: 28px; }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card { background: var(--card); border-radius: var(--radius); padding: 20px; }
+  .stat-value { font-size: 28px; font-weight: 700; color: var(--green); }
+  .stat-label { font-size: 12px; color: var(--text-sub); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  .filter-bar { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; align-items: center; }
+
+  .search-input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--text);
+    font-size: 14px;
+    width: 300px;
+    outline: none;
+    transition: border .2s;
+  }
+
+  .search-input:focus { border-color: var(--green); }
+  .search-input::placeholder { color: var(--text-dim); }
+
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--text-sub);
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .filter-btn:hover, .filter-btn.active { border-color: var(--green); color: var(--text); }
+
+  .sort-select {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 8px 16px;
+    color: var(--text-sub);
+    font-size: 13px;
+    cursor: pointer;
+    outline: none;
+  }
+
+  .sort-select option { background: var(--card); color: var(--text); }
+
+  .data-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .data-table thead th {
+    text-align: left; padding: 10px 12px; font-size: 11px; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--text-dim);
+    border-bottom: 1px solid var(--border); position: sticky; top: 0;
+    background: var(--bg); cursor: pointer; user-select: none;
+  }
+  .data-table thead th:hover { color: var(--text-sub); }
+  .data-table tbody tr { border-bottom: 1px solid rgba(255,255,255,0.04); transition: background .1s; }
+  .data-table tbody tr:hover { background: var(--card); }
+  .data-table td { padding: 10px 12px; color: var(--text-sub); max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .data-table td:first-child { color: var(--text); font-weight: 500; }
+
+  .track-num { color: var(--text-dim); font-variant-numeric: tabular-nums; width: 40px; }
+
+  .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border-radius: var(--radius); padding: 20px; transition: background .15s; }
+  .card:hover { background: var(--card-hover); }
+  .card-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .card-sub { font-size: 13px; color: var(--text-sub); margin-bottom: 12px; }
+  .card-meta { font-size: 12px; color: var(--text-dim); }
+
+  .playlist-list { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .playlist-chip {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 6px 16px; font-size: 13px; color: var(--text-sub); cursor: pointer; transition: all .15s;
+  }
+  .playlist-chip:hover, .playlist-chip.active { border-color: var(--green); color: var(--text); background: var(--card-hover); }
+
+  .tag {
+    display: inline-block; background: rgba(29,185,84,.15); color: var(--green);
+    font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 4px; margin-right: 4px;
+  }
+
+  .profile-card {
+    background: linear-gradient(135deg, #1db954 0%, #191414 100%);
+    border-radius: 16px; padding: 32px; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 24px;
+  }
+  .profile-avatar { width: 80px; height: 80px; border-radius: 50%; background: var(--card); overflow: hidden; }
+  .profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+  .profile-name { font-size: 24px; font-weight: 700; }
+  .profile-username { color: rgba(255,255,255,.7); font-size: 14px; }
+  .profile-meta { font-size: 13px; color: rgba(255,255,255,.6); margin-top: 6px; }
+
+  .follow-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 28px; }
+  .follow-box { background: var(--card); border-radius: var(--radius); padding: 20px; }
+  .follow-box h3 { font-size: 15px; margin-bottom: 12px; color: var(--text-sub); }
+  .follow-list { list-style: none; }
+  .follow-list li { padding: 6px 0; font-size: 14px; color: var(--text); border-bottom: 1px solid rgba(255,255,255,.04); }
+
+  .pagination { display: flex; gap: 8px; justify-content: center; margin-top: 20px; align-items: center; }
+  .page-btn {
+    background: var(--card); border: 1px solid var(--border); border-radius: 6px;
+    padding: 6px 14px; color: var(--text-sub); font-size: 13px; cursor: pointer; transition: all .15s;
+  }
+  .page-btn:hover { border-color: var(--green); color: var(--text); }
+  .page-btn.active { background: var(--green); border-color: var(--green); color: #000; font-weight: 600; }
+  .page-btn:disabled { opacity: .3; cursor: default; }
+  .page-info { color: var(--text-dim); font-size: 13px; }
+
+  .wrapped-hero {
+    background: linear-gradient(135deg, #1db954 0%, #191414 70%);
+    border-radius: 16px; padding: 32px; margin-bottom: 28px;
+  }
+  .wrapped-hero h2 { font-size: 26px; margin-bottom: 4px; }
+  .wrapped-hero p { color: rgba(255,255,255,.7); }
+  .wrapped-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-top: 20px; }
+  .wrapped-stat { text-align: center; }
+  .wrapped-stat .val { font-size: 32px; font-weight: 700; }
+  .wrapped-stat .lbl { font-size: 12px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .5px; }
+
+  .inferences-cloud { display: flex; flex-wrap: wrap; gap: 8px; }
+  .inference-tag {
+    background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+    padding: 5px 14px; font-size: 12px; color: var(--text-sub);
+  }
+
+  ::-webkit-scrollbar { width: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+  @media (max-width: 768px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 20px; }
+    .profile-card { flex-direction: column; text-align: center; }
+    .follow-grid { grid-template-columns: 1fr; }
+    .search-input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ========== LANDING SCREEN ========== -->
+<div id="landing" class="landing">
+  <div class="landing-logo">
+    <svg width="36" height="36" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+    Music Data Viewer
+  </div>
+  <div class="landing-sub">View your Spotify data export locally &mdash; nothing leaves your computer</div>
+
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon">📂</div>
+    <div class="drop-title">Drop your Spotify JSON files here</div>
+    <div class="drop-hint">or click to browse for the export folder</div>
+    <button class="browse-btn" id="browseBtn">Select Folder</button>
+    <input type="file" id="fileInput" class="file-input" multiple accept=".json">
+    <input type="file" id="folderInput" class="file-input" webkitdirectory>
+  </div>
+
+  <div class="load-status" id="loadStatus"></div>
+  <div class="landing-note">
+    Drop all the JSON files from your <strong>Spotify Account Data</strong> folder, or click to pick the folder.
+    All data is processed in your browser — nothing is uploaded anywhere.
+  </div>
+  <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
+    <button class="browse-btn" style="background:var(--card);color:var(--text);border:1px solid var(--border)" onclick="loadDemoData()">Try with Demo Data</button>
+    <div style="color:var(--text-dim);font-size:12px;margin-top:8px">Load anonymized sample data to explore the viewer</div>
+  </div>
+</div>
+
+<!-- ========== APP SCREEN (hidden until data loaded) ========== -->
+<div id="app" class="layout" style="display:none">
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      Data Viewer
+    </div>
+
+    <div class="nav-section">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" data-section="profile"><span class="nav-icon">👤</span> Profile</div>
+      <div class="nav-item" data-section="wrapped"><span class="nav-icon">🎁</span> Wrapped</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Music</div>
+      <div class="nav-item" data-section="streaming"><span class="nav-icon">🎵</span> Streaming History</div>
+      <div class="nav-item" data-section="library"><span class="nav-icon">💚</span> Your Library</div>
+      <div class="nav-item" data-section="playlists"><span class="nav-icon">📋</span> Playlists</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Activity</div>
+      <div class="nav-item" data-section="podcasts"><span class="nav-icon">🎙️</span> Podcasts</div>
+      <div class="nav-item" data-section="searches"><span class="nav-icon">🔍</span> Search History</div>
+      <div class="nav-item" data-section="capsule"><span class="nav-icon">💊</span> Sound Capsule</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Social</div>
+      <div class="nav-item" data-section="follows"><span class="nav-icon">👥</span> Follows</div>
+      <div class="nav-item" data-section="marquee"><span class="nav-icon">📢</span> Marquee</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Privacy</div>
+      <div class="nav-item" data-section="inferences"><span class="nav-icon">🧠</span> Inferences</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Meta</div>
+      <div class="nav-item" data-section="datasources"><span class="nav-icon">📊</span> Data Sources</div>
+    </div>
+
+    <div class="sidebar-reload" onclick="location.reload()">↻ Load different data</div>
+  </nav>
+
+  <div class="main" id="content"></div>
+</div>
+
+<script>
+// ===== FILE MAPPING =====
+const FILE_MAP = {
+  'StreamingHistory_music': 'streaming',
+  'StreamingHistory_podcast': 'podcasts',
+  'Playlist': 'playlists',
+  'YourLibrary': 'library',
+  'SearchQueries': 'searches',
+  'Follow': 'follow',
+  'Userdata': 'userdata',
+  'Identity': 'identity',
+  'Inferences': 'inferences',
+  'Marquee': 'marquee',
+  'YourSoundCapsule': 'capsule',
+};
+
+let store = {};
+
+function mapFileToKey(filename) {
+  const base = filename.replace(/\.json$/i, '');
+  // Handle Wrapped files: Wrapped2025 -> wrapped_2025
+  const wrappedMatch = base.match(/^Wrapped(\d{4})$/);
+  if (wrappedMatch) return 'wrapped_' + wrappedMatch[1];
+  // Try exact match first, then prefix match (handles StreamingHistory_music_0 etc)
+  for (const [prefix, key] of Object.entries(FILE_MAP)) {
+    if (base === prefix || base.startsWith(prefix)) return key;
+  }
+  return null;
+}
+
+function getWrappedYears() {
+  return Object.keys(store)
+    .filter(k => k.startsWith('wrapped_'))
+    .map(k => k.replace('wrapped_', ''))
+    .sort((a, b) => b.localeCompare(a));
+}
+
+async function processFiles(fileList) {
+  const status = document.getElementById('loadStatus');
+  const found = [];
+  const promises = [];
+
+  for (const file of fileList) {
+    if (!file.name.endsWith('.json')) continue;
+    const key = mapFileToKey(file.name);
+    if (!key) continue;
+
+    found.push(file.name);
+    promises.push(
+      file.text().then(text => {
+        try {
+          store[key] = JSON.parse(text);
+        } catch (e) {
+          console.warn('Failed to parse', file.name, e);
+        }
+      })
+    );
+  }
+
+  if (found.length === 0) {
+    status.innerHTML = '<span class="missing">No recognised Spotify JSON files found. Make sure you selected the right folder.</span>';
+    return;
+  }
+
+  status.innerHTML = `Reading ${found.length} files...`;
+  await Promise.all(promises);
+
+  status.innerHTML = `<span class="found">Loaded ${Object.keys(store).length} data files</span>`;
+
+  // Small delay for visual feedback then switch to app
+  setTimeout(() => {
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    renderSection('profile');
+  }, 300);
+}
+
+// ===== DROP ZONE + FILE INPUT =====
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const folderInput = document.getElementById('folderInput');
+const browseBtn = document.getElementById('browseBtn');
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', async e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+
+  let files = [];
+  // Try to read directories from dataTransfer
+  if (e.dataTransfer.items) {
+    for (const item of e.dataTransfer.items) {
+      const entry = item.webkitGetAsEntry && item.webkitGetAsEntry();
+      if (entry && entry.isDirectory) {
+        const dirFiles = await readDirectory(entry);
+        files.push(...dirFiles);
+      } else if (entry && entry.isFile) {
+        const f = await new Promise(res => entry.file(res));
+        files.push(f);
+      }
+    }
+  }
+  if (files.length === 0) {
+    files = Array.from(e.dataTransfer.files);
+  }
+  processFiles(files);
+});
+
+function readDirectory(dirEntry) {
+  return new Promise(resolve => {
+    const reader = dirEntry.createReader();
+    const allFiles = [];
+    function readBatch() {
+      reader.readEntries(entries => {
+        if (entries.length === 0) { resolve(allFiles); return; }
+        let pending = entries.length;
+        entries.forEach(entry => {
+          if (entry.isFile) {
+            entry.file(f => { allFiles.push(f); if (--pending === 0) readBatch(); });
+          } else if (entry.isDirectory) {
+            readDirectory(entry).then(sub => { allFiles.push(...sub); if (--pending === 0) readBatch(); });
+          } else {
+            if (--pending === 0) readBatch();
+          }
+        });
+      });
+    }
+    readBatch();
+  });
+}
+
+// Click the drop zone to pick folder (or files as fallback)
+dropZone.addEventListener('click', e => {
+  if (e.target === browseBtn || browseBtn.contains(e.target)) {
+    folderInput.click();
+  } else {
+    folderInput.click();
+  }
+});
+
+browseBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  folderInput.click();
+});
+
+folderInput.addEventListener('change', () => { if (folderInput.files.length) processFiles(Array.from(folderInput.files)); });
+fileInput.addEventListener('change', () => { if (fileInput.files.length) processFiles(Array.from(fileInput.files)); });
+
+// ===== DEMO DATA LOADER =====
+async function loadDemoData() {
+  const status = document.getElementById('loadStatus');
+  status.innerHTML = 'Loading demo data...';
+
+  const DEMO_FILES = {
+    streaming: 'StreamingHistory_music_0.json',
+    podcasts: 'StreamingHistory_podcast_0.json',
+    playlists: 'Playlist1.json',
+    library: 'YourLibrary.json',
+    searches: 'SearchQueries.json',
+    follow: 'Follow.json',
+    userdata: 'Userdata.json',
+    identity: 'Identity.json',
+    inferences: 'Inferences.json',
+    marquee: 'Marquee.json',
+    wrapped_2025: 'Wrapped2025.json',
+    capsule: 'YourSoundCapsule.json',
+  };
+
+  const results = await Promise.allSettled(
+    Object.entries(DEMO_FILES).map(([key, file]) =>
+      fetch('demo-data/' + file)
+        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+        .then(data => { store[key] = data; })
+    )
+  );
+
+  const loaded = results.filter(r => r.status === 'fulfilled').length;
+  status.innerHTML = `<span class="found">Loaded ${loaded} demo files</span>`;
+
+  setTimeout(() => {
+    document.getElementById('landing').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    renderSection('profile');
+  }, 300);
+}
+
+// ===== HELPERS =====
+function esc(s) {
+  if (s == null) return '';
+  const d = document.createElement('div');
+  d.textContent = String(s);
+  return d.innerHTML;
+}
+
+function msToMin(ms) { return Math.round(ms / 60000); }
+function msToHuman(ms) {
+  const m = Math.round(ms / 60000);
+  if (m < 60) return m + ' min';
+  const h = Math.floor(m / 60);
+  const rm = m % 60;
+  if (h < 24) return h + 'h ' + rm + 'm';
+  const d = Math.floor(h / 24);
+  return d + 'd ' + (h % 24) + 'h';
+}
+
+function fmtDate(s) {
+  if (!s) return '';
+  try {
+    const clean = s.replace(' ', 'T').replace(/\[.*\]$/, '');
+    const d = new Date(clean);
+    if (isNaN(d)) return s;
+    return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  } catch { return s; }
+}
+
+// ===== PAGINATION =====
+const pagers = {};
+const PAGE_SIZE = 50;
+
+function paginate(items, section) {
+  if (!pagers[section]) pagers[section] = { page: 1 };
+  const p = pagers[section];
+  const total = Math.ceil(items.length / PAGE_SIZE);
+  p.page = Math.max(1, Math.min(p.page, total));
+  const start = (p.page - 1) * PAGE_SIZE;
+  return { items: items.slice(start, start + PAGE_SIZE), page: p.page, total, count: items.length, start: start + 1, end: Math.min(start + PAGE_SIZE, items.length) };
+}
+
+function pagerHTML(pg, section) {
+  if (pg.total <= 1) return '';
+  let h = `<div class="pagination">`;
+  h += `<button class="page-btn" onclick="goPage('${section}',-1)" ${pg.page===1?'disabled':''}>&#8592; Prev</button>`;
+  const range = [];
+  for (let i = 1; i <= pg.total; i++) {
+    if (i === 1 || i === pg.total || (i >= pg.page - 2 && i <= pg.page + 2)) range.push(i);
+    else if (range[range.length-1] !== '...') range.push('...');
+  }
+  range.forEach(i => {
+    if (i === '...') h += `<span class="page-info">…</span>`;
+    else h += `<button class="page-btn ${i===pg.page?'active':''}" onclick="goPageTo('${section}',${i})">${i}</button>`;
+  });
+  h += `<button class="page-btn" onclick="goPage('${section}',1)" ${pg.page===pg.total?'disabled':''}>Next &#8594;</button>`;
+  h += `<span class="page-info">${pg.start}–${pg.end} of ${pg.count}</span></div>`;
+  return h;
+}
+
+function goPage(section, delta) { pagers[section].page += delta; renderSection(section); }
+function goPageTo(section, p) { pagers[section].page = p; renderSection(section); }
+
+// ===== SORTING =====
+const sorters = {};
+function toggleSort(section, col) {
+  if (!sorters[section]) sorters[section] = { col, asc: true };
+  const s = sorters[section];
+  if (s.col === col) s.asc = !s.asc;
+  else { s.col = col; s.asc = true; }
+  if (pagers[section]) pagers[section].page = 1;
+  renderSection(section);
+}
+
+// ===== SEARCH =====
+const filters = {};
+function setFilter(section, val) {
+  filters[section] = val.toLowerCase();
+  if (pagers[section]) pagers[section].page = 1;
+  renderSection(section);
+}
+
+// ===== NAVIGATION =====
+let currentSection = 'profile';
+
+function renderSection(section) {
+  const el = document.getElementById('content');
+  const renderers = {
+    profile: renderProfile, wrapped: renderWrapped, streaming: renderStreaming,
+    library: renderLibrary, playlists: renderPlaylists, podcasts: renderPodcasts,
+    searches: renderSearches, capsule: renderCapsule, follows: renderFollows,
+    marquee: renderMarquee, inferences: renderInferences, datasources: renderDataSources,
+  };
+  if (renderers[section]) el.innerHTML = renderers[section]();
+  currentSection = section;
+}
+
+document.addEventListener('click', e => {
+  const nav = e.target.closest('.nav-item');
+  if (!nav) return;
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  nav.classList.add('active');
+  renderSection(nav.dataset.section);
+});
+
+// ===== RENDERERS =====
+
+function renderProfile() {
+  const u = store.userdata || {};
+  const id = store.identity || {};
+  const f = store.follow || {};
+  const streaming = store.streaming || [];
+  const totalMs = streaming.reduce((a, t) => a + (t.msPlayed || 0), 0);
+  const uniqueArtists = new Set(streaming.map(t => t.artistName)).size;
+  const uniqueTracks = new Set(streaming.map(t => t.trackName)).size;
+
+  let html = `<div class="profile-card">`;
+  if (id.largeImageUrl) html += `<div class="profile-avatar"><img src="${esc(id.largeImageUrl)}" alt="avatar" onerror="this.style.display='none'"></div>`;
+  html += `<div><div class="profile-name">${esc(id.displayName || u.username || 'Spotify User')}</div>`;
+  if (u.username) html += `<div class="profile-username">@${esc(u.username)}</div>`;
+  html += `<div class="profile-meta">${[u.country, u.creationTime ? 'Member since ' + u.creationTime : '', u.email].filter(Boolean).join(' · ')}</div>`;
+  html += `</div></div>`;
+
+  html += `<div class="stats-row">`;
+  html += `<div class="stat-card"><div class="stat-value">${streaming.length.toLocaleString()}</div><div class="stat-label">Total Streams</div></div>`;
+  html += `<div class="stat-card"><div class="stat-value">${msToHuman(totalMs)}</div><div class="stat-label">Listening Time</div></div>`;
+  html += `<div class="stat-card"><div class="stat-value">${uniqueArtists.toLocaleString()}</div><div class="stat-label">Unique Artists</div></div>`;
+  html += `<div class="stat-card"><div class="stat-value">${uniqueTracks.toLocaleString()}</div><div class="stat-label">Unique Tracks</div></div>`;
+  html += `<div class="stat-card"><div class="stat-value">${(f.userIsFollowing||[]).length}</div><div class="stat-label">Following</div></div>`;
+  html += `<div class="stat-card"><div class="stat-value">${(f.userIsFollowedBy||[]).length}</div><div class="stat-label">Followers</div></div>`;
+  html += `</div>`;
+
+  const artistMs = {}, artistCount = {};
+  streaming.forEach(t => {
+    artistMs[t.artistName] = (artistMs[t.artistName] || 0) + t.msPlayed;
+    artistCount[t.artistName] = (artistCount[t.artistName] || 0) + 1;
+  });
+  const topArtists = Object.entries(artistMs).sort((a,b) => b[1]-a[1]).slice(0, 10);
+
+  html += `<h2 style="font-size:18px;margin-bottom:16px">Top Artists (by listening time)</h2>`;
+  html += `<table class="data-table"><thead><tr><th>#</th><th>Artist</th><th>Plays</th><th>Time</th></tr></thead><tbody>`;
+  topArtists.forEach(([name, ms], i) => {
+    html += `<tr><td class="track-num">${i+1}</td><td>${esc(name)}</td><td>${artistCount[name]}</td><td>${msToHuman(ms)}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  return html;
+}
+
+let selectedWrappedYear = null;
+
+function renderWrapped() {
+  const years = getWrappedYears();
+  if (!years.length) return `<div class="page-title">Wrapped</div><div class="stat-card">No Wrapped data found.</div>`;
+  if (!selectedWrappedYear || !years.includes(selectedWrappedYear)) selectedWrappedYear = years[0];
+  const w = store['wrapped_' + selectedWrappedYear] || {};
+
+  let html = '';
+  if (years.length > 1) {
+    html += `<div class="filter-bar" style="margin-bottom:20px">`;
+    years.forEach(y => {
+      html += `<button class="filter-btn ${y===selectedWrappedYear?'active':''}" onclick="selectedWrappedYear='${y}';renderSection('wrapped')">${y}</button>`;
+    });
+    html += `</div>`;
+  }
+
+  html += `<div class="wrapped-hero"><h2>Wrapped ${esc(selectedWrappedYear)}</h2><p>Your year in music</p>`;
+  if (w.yearlyMetrics) {
+    const hours = Math.round(w.yearlyMetrics.totalMsListened / 3600000);
+    html += `<div class="wrapped-stats">`;
+    html += `<div class="wrapped-stat"><div class="val">${hours.toLocaleString()}</div><div class="lbl">Hours Listened</div></div>`;
+    if (w.topTracks) html += `<div class="wrapped-stat"><div class="val">${w.topTracks.numUniqueTracks}</div><div class="lbl">Unique Tracks</div></div>`;
+    if (w.topArtists) html += `<div class="wrapped-stat"><div class="val">${w.topArtists.numUniqueArtists}</div><div class="lbl">Unique Artists</div></div>`;
+    if (w.topGenres) html += `<div class="wrapped-stat"><div class="val">${w.topGenres.totalNumGenres}</div><div class="lbl">Genres</div></div>`;
+    html += `</div>`;
+  }
+  if (w.party) {
+    html += `<div class="wrapped-stats" style="margin-top:16px">`;
+    html += `<div class="wrapped-stat"><div class="val">${w.party.totalNumListeningDays}</div><div class="lbl">Days Active</div></div>`;
+    html += `<div class="wrapped-stat"><div class="val">${w.party.numArtistsDiscovered}</div><div class="lbl">Artists Discovered</div></div>`;
+    html += `<div class="wrapped-stat"><div class="val">${w.party.streakNumListeningDays}</div><div class="lbl">Day Streak</div></div>`;
+    if (w.topArtists) html += `<div class="wrapped-stat"><div class="val">${(w.topArtists.topNPercentileFan * 100).toFixed(1)}%</div><div class="lbl">Top Fan %</div></div>`;
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  if (w.listeningAge) html += `<div class="stat-card" style="margin-bottom:20px"><span class="tag">Listening Age</span> <strong>${w.listeningAge.listeningAge}</strong> · Since ${w.listeningAge.windowStartYear} · ${w.listeningAge.decadePhase} phase</div>`;
+  if (w.clubs) html += `<div class="stat-card" style="margin-bottom:20px"><span class="tag">Club</span> <strong>${esc(w.clubs.userClub.replace(/_/g, ' '))}</strong> · Role: ${esc(w.clubs.role)} · ${(w.clubs.percentInClub*100).toFixed(1)}% of listeners</div>`;
+
+  if (w.party) {
+    html += `<div class="stats-row">`;
+    html += `<div class="stat-card"><div class="stat-value">${w.party.percentPartyTracks.toFixed(1)}%</div><div class="stat-label">Party Tracks</div></div>`;
+    html += `<div class="stat-card"><div class="stat-value">${w.party.percentLoveTracks.toFixed(1)}%</div><div class="stat-label">Love Tracks</div></div>`;
+    html += `<div class="stat-card"><div class="stat-value">${w.party.percentHappyTracks.toFixed(1)}%</div><div class="stat-label">Happy Tracks</div></div>`;
+    html += `<div class="stat-card"><div class="stat-value">${Math.round(w.party.weightedMsAvgTempo)} BPM</div><div class="stat-label">Avg Tempo</div></div>`;
+    html += `</div>`;
+  }
+
+  if (w.topTracks && w.topTracks.topTracks) {
+    html += `<h3 style="margin:20px 0 12px;font-size:16px">Top Tracks</h3>`;
+    html += `<table class="data-table"><thead><tr><th>#</th><th>Track URI</th><th>Plays</th><th>Time</th></tr></thead><tbody>`;
+    w.topTracks.topTracks.forEach((t, i) => {
+      html += `<tr><td class="track-num">${i+1}</td><td>${esc(t.trackUri)}</td><td>${t.count}</td><td>${msToHuman(t.msPlayed)}</td></tr>`;
+    });
+    html += `</tbody></table>`;
+  }
+  return html;
+}
+
+function renderStreaming() {
+  const raw = store.streaming || [];
+  const f = filters.streaming || '';
+  let items = raw;
+  if (f) items = items.filter(t => (t.artistName||'').toLowerCase().includes(f) || (t.trackName||'').toLowerCase().includes(f));
+
+  const s = sorters.streaming;
+  if (s) {
+    items = [...items].sort((a,b) => {
+      let av = a[s.col], bv = b[s.col];
+      if (s.col === 'msPlayed') return s.asc ? (av||0)-(bv||0) : (bv||0)-(av||0);
+      av = (av||'').toLowerCase(); bv = (bv||'').toLowerCase();
+      return s.asc ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+  }
+
+  const pg = paginate(items, 'streaming');
+  const totalMs = raw.reduce((a,t) => a + (t.msPlayed||0), 0);
+
+  let html = `<div class="page-title">Streaming History</div>`;
+  html += `<div class="page-subtitle">${raw.length.toLocaleString()} streams · ${msToHuman(totalMs)} total</div>`;
+  html += `<div class="filter-bar"><input class="search-input" placeholder="Search artist or track..." value="${esc(f)}" oninput="setFilter('streaming',this.value)"></div>`;
+  html += `<table class="data-table"><thead><tr>`;
+  html += `<th onclick="toggleSort('streaming','endTime')">Date</th>`;
+  html += `<th onclick="toggleSort('streaming','artistName')">Artist</th>`;
+  html += `<th onclick="toggleSort('streaming','trackName')">Track</th>`;
+  html += `<th onclick="toggleSort('streaming','msPlayed')">Duration</th>`;
+  html += `</tr></thead><tbody>`;
+  pg.items.forEach(t => {
+    html += `<tr><td>${fmtDate(t.endTime)}</td><td>${esc(t.artistName)}</td><td>${esc(t.trackName)}</td><td>${msToHuman(t.msPlayed)}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  html += pagerHTML(pg, 'streaming');
+  return html;
+}
+
+function renderLibrary() {
+  const lib = store.library || {};
+  const tracks = lib.tracks || [], artists = lib.artists || [], albums = lib.albums || [];
+  const f = filters.library || '';
+  if (!filters._libTab) filters._libTab = 'tracks';
+  const tab = filters._libTab;
+
+  let html = `<div class="page-title">Your Library</div>`;
+  html += `<div class="page-subtitle">${tracks.length} tracks · ${artists.length} artists · ${albums.length} albums</div>`;
+  html += `<div class="filter-bar">`;
+  html += `<button class="filter-btn ${tab==='tracks'?'active':''}" onclick="filters._libTab='tracks';pagers.library&&(pagers.library.page=1);renderSection('library')">Tracks</button>`;
+  html += `<button class="filter-btn ${tab==='artists'?'active':''}" onclick="filters._libTab='artists';pagers.library&&(pagers.library.page=1);renderSection('library')">Artists</button>`;
+  html += `<button class="filter-btn ${tab==='albums'?'active':''}" onclick="filters._libTab='albums';pagers.library&&(pagers.library.page=1);renderSection('library')">Albums</button>`;
+  html += `<input class="search-input" placeholder="Search..." value="${esc(f)}" oninput="setFilter('library',this.value)">`;
+  html += `</div>`;
+
+  if (tab === 'tracks') {
+    let items = tracks;
+    if (f) items = items.filter(t => (t.artist||'').toLowerCase().includes(f) || (t.track||'').toLowerCase().includes(f) || (t.album||'').toLowerCase().includes(f));
+    const pg = paginate(items, 'library');
+    html += `<table class="data-table"><thead><tr><th>#</th><th>Track</th><th>Artist</th><th>Album</th></tr></thead><tbody>`;
+    pg.items.forEach((t, i) => { html += `<tr><td class="track-num">${pg.start+i}</td><td>${esc(t.track)}</td><td>${esc(t.artist)}</td><td>${esc(t.album)}</td></tr>`; });
+    html += `</tbody></table>`;
+    html += pagerHTML(pg, 'library');
+  } else if (tab === 'artists') {
+    let items = artists;
+    if (f) items = items.filter(a => (a.name||'').toLowerCase().includes(f));
+    const pg = paginate(items, 'library');
+    html += `<table class="data-table"><thead><tr><th>#</th><th>Artist</th></tr></thead><tbody>`;
+    pg.items.forEach((a, i) => { html += `<tr><td class="track-num">${pg.start+i}</td><td>${esc(a.name)}</td></tr>`; });
+    html += `</tbody></table>`;
+    html += pagerHTML(pg, 'library');
+  } else {
+    let items = albums;
+    if (f) items = items.filter(a => (a.album||'').toLowerCase().includes(f) || (a.artist||'').toLowerCase().includes(f));
+    const pg = paginate(items, 'library');
+    html += `<table class="data-table"><thead><tr><th>#</th><th>Album</th><th>Artist</th></tr></thead><tbody>`;
+    pg.items.forEach((a, i) => { html += `<tr><td class="track-num">${pg.start+i}</td><td>${esc(a.album)}</td><td>${esc(a.artist)}</td></tr>`; });
+    html += `</tbody></table>`;
+    html += pagerHTML(pg, 'library');
+  }
+  return html;
+}
+
+let selectedPlaylist = 0;
+
+function renderPlaylists() {
+  const data = store.playlists || {};
+  const playlists = data.playlists || [];
+  const f = filters.playlists || '';
+
+  let html = `<div class="page-title">Playlists</div><div class="page-subtitle">${playlists.length} playlists</div>`;
+  html += `<div class="playlist-list">`;
+  playlists.forEach((pl, i) => {
+    html += `<button class="playlist-chip ${i===selectedPlaylist?'active':''}" onclick="selectedPlaylist=${i};pagers.playlists&&(pagers.playlists.page=1);filters.playlists='';renderSection('playlists')">${esc(pl.name)} <span style="color:var(--text-dim);font-size:11px">(${(pl.items||[]).length})</span></button>`;
+  });
+  html += `</div>`;
+  if (!playlists.length) return html;
+
+  const pl = playlists[Math.min(selectedPlaylist, playlists.length - 1)];
+  const items = (pl.items || []).filter(item => {
+    const t = item.track || item.episode || {};
+    if (!f) return true;
+    return (t.trackName||t.episodeName||'').toLowerCase().includes(f) || (t.artistName||t.podcastName||'').toLowerCase().includes(f);
+  });
+
+  html += `<h3 style="font-size:16px;margin-bottom:6px">${esc(pl.name)}</h3>`;
+  html += `<p class="page-subtitle">Last modified: ${fmtDate(pl.lastModifiedDate)} · ${(pl.items||[]).length} items</p>`;
+  html += `<div class="filter-bar"><input class="search-input" placeholder="Search in playlist..." value="${esc(f)}" oninput="setFilter('playlists',this.value)"></div>`;
+
+  const pg = paginate(items, 'playlists');
+  html += `<table class="data-table"><thead><tr><th>#</th><th>Track</th><th>Artist</th><th>Album</th><th>Added</th></tr></thead><tbody>`;
+  pg.items.forEach((item, i) => {
+    const t = item.track || {};
+    html += `<tr><td class="track-num">${pg.start+i}</td><td>${esc(t.trackName)}</td><td>${esc(t.artistName)}</td><td>${esc(t.albumName)}</td><td>${fmtDate(item.addedDate)}</td></tr>`;
+  });
+  html += `</tbody></table>`;
+  html += pagerHTML(pg, 'playlists');
+  return html;
+}
+
+function renderPodcasts() {
+  const raw = store.podcasts || [];
+  let html = `<div class="page-title">Podcast History</div><div class="page-subtitle">${raw.length} episodes</div>`;
+  if (!raw.length) { html += `<div class="stat-card">No podcast history found.</div>`; return html; }
+  html += `<table class="data-table"><thead><tr><th>Date</th><th>Podcast</th><th>Episode</th><th>Duration</th></tr></thead><tbody>`;
+  raw.forEach(t => { html += `<tr><td>${fmtDate(t.endTime)}</td><td>${esc(t.podcastName)}</td><td>${esc(t.episodeName)}</td><td>${msToHuman(t.msPlayed)}</td></tr>`; });
+  html += `</tbody></table>`;
+  return html;
+}
+
+function renderSearches() {
+  const raw = store.searches || [];
+  const f = filters.searches || '';
+  let items = raw.filter(s => s.searchQuery && s.searchQuery.length >= 3);
+  if (f) items = items.filter(s => s.searchQuery.toLowerCase().includes(f));
+  const seen = {};
+  items.forEach(s => { const q = s.searchQuery.toLowerCase(); if (!seen[q] || s.searchTime > seen[q].searchTime) seen[q] = s; });
+  items = Object.values(seen).sort((a,b) => b.searchTime.localeCompare(a.searchTime));
+
+  let html = `<div class="page-title">Search History</div><div class="page-subtitle">${items.length} unique searches</div>`;
+  html += `<div class="filter-bar"><input class="search-input" placeholder="Filter searches..." value="${esc(f)}" oninput="setFilter('searches',this.value)"></div>`;
+  const pg = paginate(items, 'searches');
+  html += `<table class="data-table"><thead><tr><th>Date</th><th>Query</th><th>Platform</th></tr></thead><tbody>`;
+  pg.items.forEach(s => { html += `<tr><td>${fmtDate(s.searchTime)}</td><td>${esc(s.searchQuery)}</td><td>${esc(s.platform || '—')}</td></tr>`; });
+  html += `</tbody></table>`;
+  html += pagerHTML(pg, 'searches');
+  return html;
+}
+
+function renderCapsule() {
+  const raw = store.capsule || {};
+  const stats = raw.stats || [];
+  let html = `<div class="page-title">Sound Capsule</div><div class="page-subtitle">Weekly listening snapshots</div>`;
+  if (!stats.length) { html += `<div class="stat-card">No sound capsule data available.</div>`; return html; }
+  html += `<div class="cards-grid">`;
+  stats.forEach(week => {
+    html += `<div class="card"><div class="card-title">${fmtDate(week.date)}</div>`;
+    html += `<div class="card-sub">${week.streamCount} streams · ${msToHuman((week.secondsPlayed||0)*1000)}</div>`;
+    if (week.topArtists && week.topArtists.length) html += `<div class="card-meta"><strong>Top Artists:</strong> ${week.topArtists.slice(0,3).map(a => esc(a.name)).join(', ')}</div>`;
+    if (week.topTracks && week.topTracks.length) html += `<div class="card-meta" style="margin-top:4px"><strong>Top Tracks:</strong> ${week.topTracks.slice(0,3).map(t => esc(t.name)).join(', ')}</div>`;
+    html += `</div>`;
+  });
+  html += `</div>`;
+  return html;
+}
+
+function renderFollows() {
+  const f = store.follow || {};
+  let html = `<div class="page-title">Follows</div><div class="page-subtitle">Your social connections</div>`;
+  html += `<div class="follow-grid">`;
+  html += `<div class="follow-box"><h3>Following (${(f.userIsFollowing||[]).length})</h3><ul class="follow-list">`;
+  (f.userIsFollowing||[]).forEach(u => { html += `<li>${esc(u)}</li>`; });
+  html += `</ul></div>`;
+  html += `<div class="follow-box"><h3>Followers (${(f.userIsFollowedBy||[]).length})</h3><ul class="follow-list">`;
+  (f.userIsFollowedBy||[]).forEach(u => { html += `<li>${esc(u)}</li>`; });
+  html += `</ul></div></div>`;
+  if (f.userIsBlocking && f.userIsBlocking.length) {
+    html += `<div class="follow-box"><h3>Blocked (${f.userIsBlocking.length})</h3><ul class="follow-list">`;
+    f.userIsBlocking.forEach(u => { html += `<li>${esc(u)}</li>`; });
+    html += `</ul></div>`;
+  }
+  return html;
+}
+
+function renderMarquee() {
+  const raw = store.marquee || [];
+  let html = `<div class="page-title">Marquee</div><div class="page-subtitle">Artist notifications and recommendations</div>`;
+  if (!Array.isArray(raw) || !raw.length) { html += `<div class="stat-card">No marquee data available.</div>`; return html; }
+  const f = filters.marquee || '';
+  let items = raw;
+  if (f) items = items.filter(m => (m.artistName||'').toLowerCase().includes(f));
+  html += `<div class="filter-bar"><input class="search-input" placeholder="Filter artists..." value="${esc(f)}" oninput="setFilter('marquee',this.value)"></div>`;
+  const pg = paginate(items, 'marquee');
+  html += `<table class="data-table"><thead><tr><th>Artist</th><th>Segment</th></tr></thead><tbody>`;
+  pg.items.forEach(m => { html += `<tr><td>${esc(m.artistName)}</td><td><span class="tag">${esc(m.segment)}</span></td></tr>`; });
+  html += `</tbody></table>`;
+  html += pagerHTML(pg, 'marquee');
+  return html;
+}
+
+function renderInferences() {
+  const data = store.inferences || {};
+  const items = data.inferences || [];
+  const f = filters.inferences || '';
+  const readable = items.map(s => s.replace(/^[13]P_/,'').replace(/^Custom_/,'').replace(/_/g,' ').replace(/\s+/g,' ').trim()).filter(s => !s.match(/^[0-9a-f]{8}-/i));
+  let filtered = readable;
+  if (f) filtered = filtered.filter(s => s.toLowerCase().includes(f));
+
+  let html = `<div class="page-title">Advertising Inferences</div>`;
+  html += `<div class="page-subtitle">${readable.length} inferred audience segments (${items.length} total including IDs)</div>`;
+  html += `<div class="filter-bar"><input class="search-input" placeholder="Filter inferences..." value="${esc(f)}" oninput="setFilter('inferences',this.value)"></div>`;
+  html += `<div class="inferences-cloud">`;
+  filtered.forEach(s => { html += `<span class="inference-tag">${esc(s)}</span>`; });
+  html += `</div>`;
+  return html;
+}
+function parseDate(s) {
+  if (!s) return null;
+  try {
+    const clean = String(s).replace(' ', 'T').replace(/\[.*\]$/, '');
+    const d = new Date(clean);
+    return isNaN(d) ? null : d;
+  } catch { return null; }
+}
+
+function renderDataSources() {
+  const sources = [];
+
+  // Streaming History
+  const streaming = store.streaming || [];
+  if (streaming.length) {
+    const dates = streaming.map(t => parseDate(t.endTime)).filter(Boolean).sort((a,b) => a-b);
+    sources.push({ name: 'Streaming History (Music)', key: 'streaming', records: streaming.length, earliest: dates[0], latest: dates[dates.length-1] });
+  }
+
+  // Podcasts
+  const podcasts = store.podcasts || [];
+  if (podcasts.length) {
+    const dates = podcasts.map(t => parseDate(t.endTime)).filter(Boolean).sort((a,b) => a-b);
+    sources.push({ name: 'Streaming History (Podcasts)', key: 'podcasts', records: podcasts.length, earliest: dates[0], latest: dates[dates.length-1] });
+  }
+
+  // Playlists
+  const playlists = (store.playlists || {}).playlists || [];
+  if (playlists.length) {
+    const totalItems = playlists.reduce((a, p) => a + (p.items||[]).length, 0);
+    const modDates = playlists.map(p => parseDate(p.lastModifiedDate)).filter(Boolean).sort((a,b) => a-b);
+    sources.push({ name: 'Playlists', key: 'playlists', records: playlists.length, detail: totalItems + ' total tracks', earliest: modDates[0], latest: modDates[modDates.length-1], dateLabel: 'Modified' });
+  }
+
+  // Library
+  const lib = store.library || {};
+  const trackCount = (lib.tracks||[]).length;
+  const artistCount = (lib.artists||[]).length;
+  const albumCount = (lib.albums||[]).length;
+  if (trackCount || artistCount || albumCount) {
+    sources.push({ name: 'Your Library', key: 'library', records: trackCount + artistCount + albumCount, detail: `${trackCount} tracks, ${artistCount} artists, ${albumCount} albums` });
+  }
+
+  // Search Queries
+  const searches = store.searches || [];
+  if (searches.length) {
+    const dates = searches.map(s => parseDate(s.searchTime)).filter(Boolean).sort((a,b) => a-b);
+    sources.push({ name: 'Search Queries', key: 'searches', records: searches.length, earliest: dates[0], latest: dates[dates.length-1] });
+  }
+
+  // Follow
+  const follow = store.follow || {};
+  if (follow.userIsFollowing || follow.userIsFollowedBy) {
+    sources.push({ name: 'Follows', key: 'follow', records: (follow.userIsFollowing||[]).length + (follow.userIsFollowedBy||[]).length, detail: `${(follow.userIsFollowing||[]).length} following, ${(follow.userIsFollowedBy||[]).length} followers` });
+  }
+
+  // Userdata
+  if (store.userdata && store.userdata.username) {
+    sources.push({ name: 'User Data', key: 'userdata', records: 1 });
+  }
+
+  // Identity
+  if (store.identity && store.identity.displayName) {
+    sources.push({ name: 'Identity', key: 'identity', records: 1 });
+  }
+
+  // Inferences
+  const inf = (store.inferences || {}).inferences || [];
+  if (inf.length) {
+    sources.push({ name: 'Inferences', key: 'inferences', records: inf.length });
+  }
+
+  // Marquee
+  const marquee = store.marquee || [];
+  if (Array.isArray(marquee) && marquee.length) {
+    sources.push({ name: 'Marquee', key: 'marquee', records: marquee.length });
+  }
+
+  // Wrapped (all years)
+  const wrappedYears = getWrappedYears();
+  wrappedYears.forEach(y => {
+    sources.push({ name: `Wrapped ${y}`, key: 'wrapped_' + y, records: 1 });
+  });
+
+  // Sound Capsule
+  const capsule = (store.capsule || {}).stats || [];
+  if (capsule.length) {
+    const dates = capsule.map(s => parseDate(s.date)).filter(Boolean).sort((a,b) => a-b);
+    sources.push({ name: 'Sound Capsule', key: 'capsule', records: capsule.length, earliest: dates[0], latest: dates[dates.length-1] });
+  }
+
+  // Build HTML
+  const fmtD = d => d ? d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+
+  let html = `<div class="page-title">Data Sources</div>`;
+  html += `<div class="page-subtitle">${sources.length} files loaded · ${Object.keys(store).length} data keys</div>`;
+
+  html += `<table class="data-table"><thead><tr><th>Source</th><th>Records</th><th>Details</th><th>Date Range</th></tr></thead><tbody>`;
+  sources.forEach(s => {
+    let dateRange = '';
+    if (s.earliest && s.latest) {
+      const label = s.dateLabel || 'Data';
+      if (fmtD(s.earliest) === fmtD(s.latest)) dateRange = fmtD(s.earliest);
+      else dateRange = fmtD(s.earliest) + ' — ' + fmtD(s.latest);
+    }
+    html += `<tr>`;
+    html += `<td>${esc(s.name)}</td>`;
+    html += `<td>${s.records.toLocaleString()}</td>`;
+    html += `<td>${esc(s.detail || '—')}</td>`;
+    html += `<td>${dateRange || '—'}</td>`;
+    html += `</tr>`;
+  });
+  html += `</tbody></table>`;
+
+  // Overall summary
+  const allDates = sources.flatMap(s => [s.earliest, s.latest]).filter(Boolean).sort((a,b) => a-b);
+  if (allDates.length >= 2) {
+    html += `<div class="stat-card" style="margin-top:24px"><span class="tag">Overall Range</span> ${fmtD(allDates[0])} — ${fmtD(allDates[allDates.length-1])}</div>`;
+  }
+
+  return html;
+}
+</script>
+</body>
+</html>

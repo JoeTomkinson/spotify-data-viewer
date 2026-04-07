@@ -1,0 +1,17 @@
+{
+  "username" : "melodymaven",
+  "email" : "demo.user@example.com",
+  "country" : "GB",
+  "createdFromFacebook" : false,
+  "facebookUid" : "100000000",
+  "birthdate" : "1992-07-15",
+  "gender" : "male",
+  "postalCode" : null,
+  "mobileNumber" : null,
+  "mobileOperator" : null,
+  "mobileBrand" : null,
+  "creationTime" : "2011-04-16",
+  "assuredEstimatedAge" : null,
+  "assuredAgeMethod" : null,
+  "assuredAgeTimestamp" : null
+}

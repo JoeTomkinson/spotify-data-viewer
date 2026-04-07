@@ -1,0 +1,368 @@
+{
+  "stats" : [ {
+    "date" : "2026-01-12",
+    "streamCount" : 0,
+    "secondsPlayed" : 0,
+    "topTracks" : [ {
+      "name" : "Addicted",
+      "streamCount" : 3,
+      "secondsPlayed" : 576
+    }, {
+      "name" : "Eternity",
+      "streamCount" : 3,
+      "secondsPlayed" : 567
+    }, {
+      "name" : "GONER",
+      "streamCount" : 3,
+      "secondsPlayed" : 400
+    }, {
+      "name" : "I Run",
+      "streamCount" : 3,
+      "secondsPlayed" : 387
+    }, {
+      "name" : "Tease Me",
+      "streamCount" : 3,
+      "secondsPlayed" : 363
+    }, {
+      "name" : "Ordinary",
+      "streamCount" : 2,
+      "secondsPlayed" : 372
+    }, {
+      "name" : "Bloodline",
+      "streamCount" : 2,
+      "secondsPlayed" : 364
+    }, {
+      "name" : "Believe It",
+      "streamCount" : 2,
+      "secondsPlayed" : 342
+    }, {
+      "name" : "hate to be lame - Live",
+      "streamCount" : 2,
+      "secondsPlayed" : 312
+    }, {
+      "name" : "XOXO",
+      "streamCount" : 2,
+      "secondsPlayed" : 290
+    } ],
+    "topArtists" : [ {
+      "name" : "Alex Warren",
+      "streamCount" : 7,
+      "secondsPlayed" : 1303
+    }, {
+      "name" : "Haley Joelle",
+      "streamCount" : 4,
+      "secondsPlayed" : 703
+    }, {
+      "name" : "Jared Benjamin",
+      "streamCount" : 3,
+      "secondsPlayed" : 513
+    }, {
+      "name" : "Tom Cooper",
+      "streamCount" : 3,
+      "secondsPlayed" : 400
+    }, {
+      "name" : "HAVEN.",
+      "streamCount" : 3,
+      "secondsPlayed" : 387
+    }, {
+      "name" : "4andre",
+      "streamCount" : 3,
+      "secondsPlayed" : 363
+    }, {
+      "name" : "Olivia Dean",
+      "streamCount" : 3,
+      "secondsPlayed" : 335
+    }, {
+      "name" : "Teddy Swims",
+      "streamCount" : 3,
+      "secondsPlayed" : 607
+    }, {
+      "name" : "Morgan Wallen",
+      "streamCount" : 2,
+      "secondsPlayed" : 375
+    }, {
+      "name" : "Blair Muir",
+      "streamCount" : 2,
+      "secondsPlayed" : 370
+    } ],
+    "topGenres" : [ ]
+  }, {
+    "date" : "2026-01-05",
+    "streamCount" : 0,
+    "secondsPlayed" : 0,
+    "topTracks" : [ {
+      "name" : "Choosin' Texas",
+      "streamCount" : 2,
+      "secondsPlayed" : 402
+    }, {
+      "name" : "Man I Need",
+      "streamCount" : 2,
+      "secondsPlayed" : 263
+    }, {
+      "name" : "Don't Mind If I Do",
+      "streamCount" : 2,
+      "secondsPlayed" : 218
+    }, {
+      "name" : "Recognise",
+      "streamCount" : 1,
+      "secondsPlayed" : 269
+    }, {
+      "name" : "Dirty Liar",
+      "streamCount" : 1,
+      "secondsPlayed" : 240
+    }, {
+      "name" : "Eternity",
+      "streamCount" : 1,
+      "secondsPlayed" : 236
+    }, {
+      "name" : "Summer in Winter",
+      "streamCount" : 1,
+      "secondsPlayed" : 224
+    }, {
+      "name" : "Such A Funny Way",
+      "streamCount" : 1,
+      "secondsPlayed" : 223
+    }, {
+      "name" : "One Number Away",
+      "streamCount" : 1,
+      "secondsPlayed" : 222
+    }, {
+      "name" : "Chapel Haze",
+      "streamCount" : 1,
+      "secondsPlayed" : 221
+    } ],
+    "topArtists" : [ {
+      "name" : "Morgan Wallen",
+      "streamCount" : 5,
+      "secondsPlayed" : 862
+    }, {
+      "name" : "Ella Langley",
+      "streamCount" : 6,
+      "secondsPlayed" : 992
+    }, {
+      "name" : "Max McNown",
+      "streamCount" : 3,
+      "secondsPlayed" : 585
+    }, {
+      "name" : "Tucker Wetmore",
+      "streamCount" : 3,
+      "secondsPlayed" : 468
+    }, {
+      "name" : "Alex Warren",
+      "streamCount" : 2,
+      "secondsPlayed" : 415
+    }, {
+      "name" : "Olivia Dean",
+      "streamCount" : 2,
+      "secondsPlayed" : 263
+    }, {
+      "name" : "Tom Cooper",
+      "streamCount" : 2,
+      "secondsPlayed" : 239
+    }, {
+      "name" : "Riley Green",
+      "streamCount" : 2,
+      "secondsPlayed" : 218
+    }, {
+      "name" : "Dasha",
+      "streamCount" : 2,
+      "secondsPlayed" : 411
+    }, {
+      "name" : "Luke Combs",
+      "streamCount" : 2,
+      "secondsPlayed" : 382
+    } ],
+    "topGenres" : [ ]
+  }, {
+    "date" : "2025-12-29",
+    "streamCount" : 0,
+    "secondsPlayed" : 0,
+    "topTracks" : [ {
+      "name" : "Cold",
+      "streamCount" : 3,
+      "secondsPlayed" : 842
+    }, {
+      "name" : "I See Red",
+      "streamCount" : 3,
+      "secondsPlayed" : 669
+    }, {
+      "name" : "Bloodline",
+      "streamCount" : 3,
+      "secondsPlayed" : 536
+    }, {
+      "name" : "Kryptonite (Reloaded)",
+      "streamCount" : 3,
+      "secondsPlayed" : 469
+    }, {
+      "name" : "GONER",
+      "streamCount" : 3,
+      "secondsPlayed" : 443
+    }, {
+      "name" : "Man I Need",
+      "streamCount" : 3,
+      "secondsPlayed" : 538
+    }, {
+      "name" : "drunk text me",
+      "streamCount" : 2,
+      "secondsPlayed" : 418
+    }, {
+      "name" : "Addicted",
+      "streamCount" : 2,
+      "secondsPlayed" : 379
+    }, {
+      "name" : "Eternity",
+      "streamCount" : 2,
+      "secondsPlayed" : 376
+    }, {
+      "name" : "Ordinary",
+      "streamCount" : 2,
+      "secondsPlayed" : 366
+    } ],
+    "topArtists" : [ {
+      "name" : "Alex Warren",
+      "streamCount" : 9,
+      "secondsPlayed" : 1603
+    }, {
+      "name" : "Morgan Wallen",
+      "streamCount" : 9,
+      "secondsPlayed" : 1588
+    }, {
+      "name" : "Tate McRae",
+      "streamCount" : 7,
+      "secondsPlayed" : 1150
+    }, {
+      "name" : "Chris Stapleton",
+      "streamCount" : 5,
+      "secondsPlayed" : 1108
+    }, {
+      "name" : "Luke Combs",
+      "streamCount" : 5,
+      "secondsPlayed" : 1024
+    }, {
+      "name" : "Blair Muir",
+      "streamCount" : 4,
+      "secondsPlayed" : 724
+    }, {
+      "name" : "Benson Boone",
+      "streamCount" : 4,
+      "secondsPlayed" : 586
+    }, {
+      "name" : "Everybody Loves an Outlaw",
+      "streamCount" : 3,
+      "secondsPlayed" : 669
+    }, {
+      "name" : "Calvin Harris",
+      "streamCount" : 3,
+      "secondsPlayed" : 620
+    }, {
+      "name" : "Megan Moroney",
+      "streamCount" : 3,
+      "secondsPlayed" : 596
+    } ],
+    "topGenres" : [ ]
+  } ],
+  "highlights" : [ {
+    "date" : "2026-01-11",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZEVXbp6WhgI9jeV1",
+      "listeningPercentage" : 37.129485179407176
+    }
+  }, {
+    "date" : "2026-01-04",
+    "highlightType" : "MILESTONE",
+    "multiEntityMilestoneHighlight" : {
+      "entities" : [ "Alex Warren", "Morgan Wallen", "Tate McRae", "Cold", "I See Red", "Man I Need", "Bloodline", "Kryptonite (Reloaded)", "GONER" ],
+      "milestoneListeningSeconds" : 32632
+    }
+  }, {
+    "date" : "2025-12-28",
+    "highlightType" : "FIRST_TO_DISCOVER",
+    "firstToDiscoverHighlight" : {
+      "entity" : "XOXO",
+      "country" : "GB",
+      "position" : 1793
+    }
+  }, {
+    "date" : "2025-12-21",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1DWY4lFlS4Pnso",
+      "listeningPercentage" : 58.476940751682264
+    }
+  }, {
+    "date" : "2025-12-07",
+    "highlightType" : "ON_REPEAT",
+    "onRepeatHighlight" : {
+      "entity" : "I Run",
+      "streamCount" : 8
+    }
+  }, {
+    "date" : "2025-11-30",
+    "highlightType" : "ON_REPEAT",
+    "onRepeatHighlight" : {
+      "entity" : "Believe It",
+      "streamCount" : 6
+    }
+  }, {
+    "date" : "2025-11-23",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M",
+      "listeningPercentage" : 51.01526396863184
+    }
+  }, {
+    "date" : "2025-11-16",
+    "highlightType" : "ON_REPEAT",
+    "onRepeatHighlight" : {
+      "entity" : "GONER",
+      "streamCount" : 5
+    }
+  }, {
+    "date" : "2025-11-02",
+    "highlightType" : "FANS_LIKE_YOU",
+    "fansLikeYouHighlight" : {
+      "entity" : "Ordinary",
+      "country" : "GB",
+      "position" : 7,
+      "previousPosition" : 7,
+      "numberOfListeners" : 1307915
+    }
+  }, {
+    "date" : "2025-10-26",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1EIXD88vFIbVRq",
+      "listeningPercentage" : 86.70830486971796
+    }
+  }, {
+    "date" : "2025-10-19",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1DX1lVhptIYRda",
+      "listeningPercentage" : 86.46590027505466
+    }
+  }, {
+    "date" : "2025-10-12",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1DX1lVhptIYRda",
+      "listeningPercentage" : 70.51488616462348
+    }
+  }, {
+    "date" : "2025-09-28",
+    "highlightType" : "PROPORTION_LISTENING_ENTITY",
+    "proportionListeningHighlight" : {
+      "entity" : "spotify:playlist:37i9dQZF1DWY4lFlS4Pnso",
+      "listeningPercentage" : 75.32711808963035
+    }
+  }, {
+    "date" : "2025-09-21",
+    "highlightType" : "FIRST_TO_DISCOVER",
+    "firstToDiscoverHighlight" : {
+      "entity" : "Hate How You Look",
+      "country" : "GB",
+      "position" : 5165
+    }
+  } ]
+}
