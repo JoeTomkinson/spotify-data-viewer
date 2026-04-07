@@ -13,7 +13,7 @@ All contributions are subject to the repository CLA. By contributing, you agree 
 
 ## Live Demo
 
-👉 **[Try it here](https://joetomkinson.github.io/spotify-data-viewer/)** — click "Try with Demo Data" to explore with sample data.
+👉 <a href="https://joetomkinson.github.io/spotify-data-viewer/" target="_blank">Try it here</a> - click "Try with Demo Data" to explore with sample data.
 
 ### Screenshots
 
