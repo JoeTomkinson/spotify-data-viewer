@@ -1,0 +1,48 @@
+name: Build Clean Version
+
+on:
+  push:
+    branches: [main]
+    paths: [index.html]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Strip demo-data sections
+        run: |
+          sed '/<!-- BEGIN DEMO -->/,/<!-- END DEMO -->/d; /\/\/ BEGIN DEMO/,/\/\/ END DEMO/d' \
+            index.html > index-clean.html
+
+      - name: Verify no demo references remain
+        run: |
+          if grep -qi 'demo' index-clean.html; then
+            echo "::error::Clean build still contains demo references"
+            exit 1
+          fi
+
+      - name: Get short SHA
+        id: sha
+        run: echo "short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: "Spotify Data Viewer — Latest Clean Build"
+          body: |
+            Download **index-clean.html**, open it in any browser, and drop your Spotify export files onto the page.
+
+            No demo data, no external dependencies — everything runs locally in your browser.
+
+            Built from commit `${{ steps.sha.outputs.short }}`.
+          make_latest: true
+          files: index-clean.html
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

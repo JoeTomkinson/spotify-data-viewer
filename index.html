@@ -392,10 +392,12 @@
     Drop all the JSON files from your <strong>Spotify Account Data</strong> folder, or click to pick the folder.
     All data is processed in your browser — nothing is uploaded anywhere.
   </div>
+  <!-- BEGIN DEMO -->
   <div style="margin-top:24px;padding-top:24px;border-top:1px solid var(--border)">
     <button class="browse-btn" style="background:var(--card);color:var(--text);border:1px solid var(--border)" onclick="loadDemoData()">Try with Demo Data</button>
     <div style="color:var(--text-dim);font-size:12px;margin-top:8px">Load anonymized sample data to explore the viewer</div>
   </div>
+  <!-- END DEMO -->
 </div>
 
 <!-- ========== APP SCREEN (hidden until data loaded) ========== -->
@@ -592,6 +594,7 @@ browseBtn.addEventListener('click', e => {
 folderInput.addEventListener('change', () => { if (folderInput.files.length) processFiles(Array.from(folderInput.files)); });
 fileInput.addEventListener('change', () => { if (fileInput.files.length) processFiles(Array.from(fileInput.files)); });
 
+// BEGIN DEMO
 // ===== DEMO DATA LOADER =====
 async function loadDemoData() {
   const status = document.getElementById('loadStatus');
@@ -629,6 +632,7 @@ async function loadDemoData() {
     renderSection('profile');
   }, 300);
 }
+// END DEMO
 
 // ===== HELPERS =====
 function esc(s) {

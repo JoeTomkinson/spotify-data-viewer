@@ -51,7 +51,7 @@ Visit the live demo link above and drop your files onto the page.
 
 ### Option 2: Run locally
 
-1. Download `index.html`
+1. Download `index-clean.html` from the [latest release](../../releases/latest) (no demo data, no external references)
 2. Open it in any modern browser
 3. Drop your Spotify JSON files onto the page, or click "Select Folder"
 
