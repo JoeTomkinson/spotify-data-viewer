@@ -15,6 +15,13 @@ All contributions are subject to the repository CLA. By contributing, you agree 
 
 👉 **[Try it here](https://joetomkinson.github.io/spotify-data-viewer/)** — click "Try with Demo Data" to explore with sample data.
 
+### Screenshots
+
+<img width="1080" alt="image" src="https://github.com/user-attachments/assets/5bf0db72-f8a5-41d2-b97e-e2c68ff1fee5" />
+<img width="1080" alt="image" src="https://github.com/user-attachments/assets/1394d16d-ed64-4e06-a79f-656e5274357b" />
+<img width="1080" alt="image" src="https://github.com/user-attachments/assets/5d73320d-29cb-44d7-842f-ca08d82e6343" />
+<img width="2206" height="1246" alt="image" src="https://github.com/user-attachments/assets/118a5fc4-cc82-4cb9-aaf6-c2df66516501" />
+
 ## Features
 
 - **Drag & drop** your Spotify export folder or select individual JSON files
