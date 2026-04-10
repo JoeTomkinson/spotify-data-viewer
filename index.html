@@ -359,9 +359,51 @@
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
 
+  /* ---- Mobile Header ---- */
+  .mobile-header {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 56px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    align-items: center;
+    padding: 0 16px;
+    z-index: 20;
+    gap: 12px;
+  }
+
+  .hamburger {
+    background: none; border: none; color: var(--text); cursor: pointer;
+    width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; transition: background .15s;
+  }
+  .hamburger:hover { background: var(--card); }
+  .hamburger svg { width: 24px; height: 24px; }
+
+  .mobile-header-title {
+    font-size: 16px; font-weight: 700; color: var(--green);
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .sidebar-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    z-index: 9;
+  }
+  .sidebar-backdrop.open { display: block; }
+
   @media (max-width: 768px) {
-    .sidebar { display: none; }
-    .main { margin-left: 0; padding: 20px; }
+    .mobile-header { display: flex; }
+    .sidebar {
+      transform: translateX(-100%);
+      transition: transform .25s ease;
+      z-index: 15;
+    }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; padding: 20px; padding-top: 72px; }
     .profile-card { flex-direction: column; text-align: center; }
     .follow-grid { grid-template-columns: 1fr; }
     .search-input { width: 100%; }
@@ -402,7 +444,17 @@
 
 <!-- ========== APP SCREEN (hidden until data loaded) ========== -->
 <div id="app" class="layout" style="display:none">
-  <nav class="sidebar">
+  <div class="mobile-header">
+    <button class="hamburger" id="menuBtn" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 6h18v2H3V6zm0 5h18v2H3v-2zm0 5h18v2H3v-2z"/></svg>
+    </button>
+    <div class="mobile-header-title">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+      Data Viewer
+    </div>
+  </div>
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+  <nav class="sidebar" id="sidebar">
     <div class="sidebar-logo">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="#1db954"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55C7.79 13 6 14.79 6 17s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
       Data Viewer
@@ -731,12 +783,25 @@ function renderSection(section) {
   currentSection = section;
 }
 
+// ===== MOBILE MENU =====
+function closeMobileMenu() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarBackdrop').classList.remove('open');
+}
+function openMobileMenu() {
+  document.getElementById('sidebar').classList.add('open');
+  document.getElementById('sidebarBackdrop').classList.add('open');
+}
+document.getElementById('menuBtn').addEventListener('click', openMobileMenu);
+document.getElementById('sidebarBackdrop').addEventListener('click', closeMobileMenu);
+
 document.addEventListener('click', e => {
   const nav = e.target.closest('.nav-item');
   if (!nav) return;
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   nav.classList.add('active');
   renderSection(nav.dataset.section);
+  closeMobileMenu();
 });
 
 // ===== RENDERERS =====
