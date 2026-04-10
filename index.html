@@ -667,15 +667,27 @@ async function loadDemoData() {
     capsule: 'YourSoundCapsule.json',
   };
 
-  const results = await Promise.allSettled(
-    Object.entries(DEMO_FILES).map(([key, file]) =>
-      fetch('demo-data/' + file)
-        .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
-        .then(data => { store[key] = data; })
-    )
-  );
+  let results;
+  try {
+    results = await Promise.allSettled(
+      Object.entries(DEMO_FILES).map(([key, file]) =>
+        fetch('demo-data/' + file)
+          .then(r => { if (!r.ok) throw new Error(r.statusText); return r.json(); })
+          .then(data => { store[key] = data; })
+      )
+    );
+  } catch (e) {
+    status.innerHTML = `<span class="missing">Demo data can't be loaded when opening the file directly. Use a local web server, or drag &amp; drop your own Spotify data above.</span>`;
+    return;
+  }
 
   const loaded = results.filter(r => r.status === 'fulfilled').length;
+
+  if (loaded === 0) {
+    status.innerHTML = `<span class="missing">Demo data can't be loaded when opening the file directly. Use a local web server, or drag &amp; drop your own Spotify data above.</span>`;
+    return;
+  }
+
   status.innerHTML = `<span class="found">Loaded ${loaded} demo files</span>`;
 
   setTimeout(() => {
